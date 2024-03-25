@@ -2,11 +2,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>ASL Oscillator Theory</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <h1>ASL Oscillator Theory</h1>
-    <p>Stuff and things</p>
+    <p>ASL oscillators use an ASL table with loop{} to loop a series a to() functions. Set the ASL table as an output's action and then run the action. Refer to the LFO example in the asllib.lua file. We use Lua to create the ASL tables and pass them to the output which converts it to C. The C code sequences through the different to() calls at the right time, handles looping (loop{}), and does the DSP of generating samples to send to DAC for the hardware outputs. C code runs internally at 48kHz and we do not have direct access to the samples created. We can send updates to dyn variables inside the ASL table from the Lua level at a stable speed of roughly 200 Hz or 0.005 seconds per update (citation needed) before crow starts sending “event queue full!”. Filling the event queue is effectively our CPU limit. A Lua update speed of 0.005 sec per update (200Hz) has been a stable top speed for me, while the maximum is 0.0015 sec per update (citation needed).
+    </p>
 </body>
 </html>
