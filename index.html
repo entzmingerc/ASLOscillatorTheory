@@ -14,15 +14,72 @@
         <article>
             <h2>Initial Explorations</h2>
             <p>ASL oscillators use an ASL table with loop{} to loop a series a to() functions. Set the ASL table as an output's action
-                and then run the action. Refer to the LFO example in the asllib.lua file. We use Lua to create the ASL tables and pass
+                and then run the action. Refer to the 
+                <a href="https://github.com/monome/crow/blob/main/lua/asllib.lua">LFO</a> example in the asllib.lua file. We use Lua to create the ASL tables and pass
                  them to the output which converts it to C. The C code sequences through the different to() calls at the right time, 
                  handles looping (loop{}), and does the DSP of generating samples to send to DAC for the hardware outputs. C code runs 
-                 internally at 48kHz and we do not have direct access to the samples created. We can send updates to dyn variables 
+                 internally at 48kHz and we do not have direct access to the samples created. We can send 
+                 <a href="https://llllllll.co/t/crow-v3/46425/191">updates</a> to dyn variables 
                  inside the ASL table from the Lua level at a stable speed of roughly 200 Hz or 0.005 seconds per update (citation needed)
                   before crow starts sending “event queue full!”. Filling the event queue is effectively our CPU limit. 
                   A Lua update speed of 0.005 sec per update (200Hz) has been a stable top speed for me, while the 
-                  maximum is 0.0015 sec per update (citation needed).
-           </p>
+                  maximum is 0.0015 sec per update (citation needed, I saw it in a Maps episode).
+            </p>
+            <p>The oscillation happens at the C level where the ASL oscillator can freely loop back and forth to form the waveshape. 
+                Slower CV type tasks like envelopes, LFOs, sequencers, and parameter settings happen at the Lua level by updating dyn variables. 
+                Larger ASL tables with more to() stages, dynamic variables, and math functions are more computationally expensive to run on crow. 
+                Running 4 complex oscillators simultaneously can cause event queue errors, so the drumcrow models used are quite lightweight 
+                compared to what’s possible with ASL. However, crow can handle more complex ASL shapes with fewer outputs being used simultaneously. 
+                If crow is crashing, reduce Lua update speed or use simpler ASL models. Reducing update speed might reduce your maximum LFO frequency 
+                or minimum envelope decay time if you are using Lua to update dyn variables in this way. 
+            </p>
+            <p>
+                <a href="https://llllllll.co/t/drumcrow/60200">drumcrow</a> works by setting each output to be an ASL oscillator, then runs an 
+                <a href="https://llllllll.co/t/crow-v3/46425/191">update</a> loop in Lua which applies two envelopes, 
+                one LFO, and a sequencer to the dyn variables. Galapagoose made a simple <a href="https://llllllll.co/t/crow-v3/46425/203">bass drum</a> 
+                without a Lua update loop which drastically 
+                reduces the computational load. Zebra expanded on Galapagoose’s code to make a closed 
+                <a href="https://llllllll.co/t/crow-v3/46425/230">formula for decay time</a> for the bass drum. 
+                3-foot-1 made a linear congruential generator (LCG) pseudo-white <a href="https://llllllll.co/t/crow-v3/46425/190">noise oscillator</a>. 
+                Further investigation into oscillators using 
+                Zebra’s decay time formula could reduce computation cost by replacing envelopes created with a Lua update loop or by using 
+                envelopes created with dynamic variables with mutator functions.
+            </p>
+            <p>
+                A looped ASL table using arithmetic and mutator functions mul, step, and wrap can update dynamic variables 
+                from the C code level at the speed defined by the to() slew rate. The to() slew can be audio rate like 1/44100 seconds, 
+                which is how 3-foot-1’s LCG oscillator works. The mutator functions of a dynamic variable are 
+                <a href="https://monome.org/docs/crow/reference/#dynamic-variables">called each time</a> the 
+                dynamic variable is referenced in a single to() stage. For example, take a look at this ASL table: 
+            </p>
+            <blockquote>
+                loop{ to(dyn{x=1}:step(1) + dyn{x}, 0.1, “sine”) }
+            </blockquote>
+            <blockquote>
+                x=1, x steps by 1 to 2, add dyn{x} which triggers step(1) returning 3, output 5V.<br>
+                x=5, x steps by 1 to 6, add dyn{x} which triggers step(1) returning 7, output 13V.<br>
+                (crow will maxes out at 10V, but this illustrates how mutators work)
+            </blockquote>
+            <p>
+                The <a href="https://github.com/entzmingerc/drumcrow/blob/24d64573983a8b4d22d93ce13495db5d12aac969/drumcrow.lua#L132">FMStep</a> 
+                FMStep model in drumcrow uses the mutators step and wrap to create an oscillator that modulates 
+                the to() stage time inside of an ASL table directly, performing frequency modulation without needing 
+                to use a Lua update loop. Looping ASL tables with mutating dynamic variables provide a great way to 
+                make complex waveshapes. This style of synthesis is very similar to <a href="https://llllllll.co/t/bytebeats-a-beginner-s-guide/16491">bytebeat</a> 
+                but with some key differences, 
+                namely the dynamic variables are mutated each time they’re referenced, the to() slew time can be modulated, 
+                and a selection of different CV shaping functions. One promising direction for creating complex ASL 
+                oscillators is to translate bytebeat to ASL. A bytebeat oscillator (t + 1) will increment t until t hits 
+                a maximum value and wraps around, thus creating a sawtooth waveform. This function can be translated to ASL, 
+                but the sample rate can be adjusted using a dynamic variable, enabling this “bytebeat waveshape” to be 
+                played chromatically as follows,
+            </p>
+            <blockquote>
+                loop{ to(dyn{t=1}:step(1):wrap(0,10), dyn{cyc}, “now”) }
+            </blockquote>
+            <p>
+                These same techniques are also available for norns scripting using crow.
+            </p>
         </article>
     </main>
     <footer>
