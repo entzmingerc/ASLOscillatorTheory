@@ -22,6 +22,7 @@ header h1 {
 }
 blockquote {
     background: lightgoldenrodyellow;
+    font-family: "Lucida Console", "Courier New", monospace;
 }
 
 main {
@@ -32,6 +33,12 @@ main {
 
 p {
     margin: 10px auto;
+    text-align: left;
+    text-indent: 50px;
+}
+
+a {
+    color: darkblue;
 }
 
 article {

@@ -55,11 +55,11 @@
             <blockquote>
                 loop{ to(dyn{x=1}:step(1) + dyn{x}, 0.1, “sine”) }
             </blockquote>
-            <blockquote>
+            <p>
                 x=1, x steps by 1 to 2, add dyn{x} which triggers step(1) returning 3, output 5V.<br>
                 x=5, x steps by 1 to 6, add dyn{x} which triggers step(1) returning 7, output 13V.<br>
                 (crow will maxes out at 10V, but this illustrates how mutators work)
-            </blockquote>
+            </p>
             <p>
                 The <a href="https://github.com/entzmingerc/drumcrow/blob/24d64573983a8b4d22d93ce13495db5d12aac969/drumcrow.lua#L132">FMStep</a> 
                 FMStep model in drumcrow uses the mutators step and wrap to create an oscillator that modulates 
