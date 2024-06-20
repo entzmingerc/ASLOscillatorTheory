@@ -20,9 +20,23 @@ header {
 header h1 {
     margin-bottom: 5px;
 }
-blockquote {
+
+blockquote.center {
+    border: 1px solid #ddd;
+    padding: 1em;
     background: lightgoldenrodyellow;
     font-family: "Lucida Console", "Courier New", monospace;
+}
+
+blockquote.list {
+    border: 1px solid #ddd;
+    text-align: left;
+    background: lightgoldenrodyellow;
+    padding: 1em 1.5em;
+    word-wrap: break-word;
+    font-family: "Lucida Console", "Courier New", monospace;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 main {
@@ -41,7 +55,8 @@ a {
 }
 
 article {
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 30px;
 }
 
 article h2, article h3 {
@@ -49,17 +64,27 @@ article h2, article h3 {
 }
 
 table {
+    margin-top: 1em;
+    margin-bottom: 1em;
     border-collapse: collapse;
-}
-
-tr:nth-child(even) {
-    background-color: #f2f2f2;
 }
 
 th, td {
     padding: 5px;
     text-align: center;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid;
+}
+
+tr:hover {
+    background-color: lightcyan;
+}
+
+ul {
+    list-style-type: disc;
+}
+
+li {
+    text-align: left;
 }
 
 footer {
